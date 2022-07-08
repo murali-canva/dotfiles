@@ -1,215 +1,186 @@
-local g = vim.g
-local fn = vim.fn
-local utils = require("utils")
-local nmap = utils.nmap
-local env = vim.env
-local cmd = vim.cmd
+vim.cmd "packadd packer.nvim"
 
-local plugLoad = fn["functions#PlugLoad"]
-local plugBegin = fn["plug#begin"]
-local plugEnd = fn["plug#end"]
-local Plug = fn["plug#"]
+local plugins = {
 
-plugLoad()
-plugBegin("~/.config/nvim/plugged")
+   ["nvim-lua/plenary.nvim"] = { module = "plenary" },
+   ["wbthomason/packer.nvim"] = {},
+   ["NvChad/extensions"] = { module = { "telescope", "nvchad" } },
 
--- NOTE: the argument passed to Plug has to be wrapped with single-quotes
+   ["NvChad/base46"] = {
+      config = function()
+         local ok, base46 = pcall(require, "base46")
 
--- a set of lua helpers that are used by other plugins
-Plug "nvim-lua/plenary.nvim"
+         if ok then
+            base46.load_theme()
+         end
+      end,
+   },
 
--- easy commenting
-Plug "tpope/vim-commentary"
-Plug "JoosepAlviste/nvim-ts-context-commentstring"
+   ["NvChad/nvterm"] = {
+      module = "nvterm",
+      config = function()
+         require "plugins.configs.nvterm"
+      end,
+   },
 
--- bracket mappings for moving between buffers, quickfix items, etc.
-Plug "tpope/vim-unimpaired"
+   ["kyazdani42/nvim-web-devicons"] = {
+      module = "nvim-web-devicons",
+      config = function()
+         require("plugins.configs.others").devicons()
+      end,
+   },
 
--- mappings to easily delete, change and add such surroundings in pairs, such as quotes, parens, etc.
-Plug "tpope/vim-surround"
+   ["lukas-reineke/indent-blankline.nvim"] = {
+      opt = true,
+      setup = function()
+         require("core.lazy_load").on_file_open "indent-blankline.nvim"
+      end,
+      config = function()
+         require("plugins.configs.others").blankline()
+      end,
+   },
 
--- endings for html, xml, etc. - ehances surround
-Plug "tpope/vim-ragtag"
+   ["NvChad/nvim-colorizer.lua"] = {
+      opt = true,
+      setup = function()
+         require("core.lazy_load").colorizer()
+      end,
+      config = function()
+         require("plugins.configs.others").colorizer()
+      end,
+   },
 
--- substitution and abbreviation helpers
-Plug "tpope/vim-abolish"
+   ["nvim-treesitter/nvim-treesitter"] = {
+      module = "nvim-treesitter",
+      setup = function()
+         require("core.lazy_load").on_file_open "nvim-treesitter"
+      end,
+      cmd = require("core.lazy_load").treesitter_cmds,
+      run = ":TSUpdate",
+      config = function()
+         require "plugins.configs.treesitter"
+      end,
+   },
 
--- enables repeating other supported plugins with the . command
-Plug "tpope/vim-repeat"
+   -- git stuff
+   ["lewis6991/gitsigns.nvim"] = {
+      opt = true,
+      setup = function()
+         require("core.lazy_load").gitsigns()
+      end,
+      config = function()
+         require("plugins.configs.others").gitsigns()
+      end,
+   },
 
--- single/multi line code handler: gS - split one line into multiple, gJ - combine multiple lines into one
-Plug "AndrewRadev/splitjoin.vim"
+   -- lsp stuff
 
--- detect indent style (tabs vs. spaces)
-Plug "tpope/vim-sleuth"
+   ["williamboman/nvim-lsp-installer"] = {
+      opt = true,
+      cmd = require("core.lazy_load").lsp_cmds,
+      setup = function()
+         require("core.lazy_load").on_file_open "nvim-lsp-installer"
+      end,
+   },
 
--- setup editorconfig
-Plug "editorconfig/editorconfig-vim"
+   ["neovim/nvim-lspconfig"] = {
+      after = "nvim-lsp-installer",
+      module = "lspconfig",
+      config = function()
+         require "plugins.configs.lsp_installer"
+         require "plugins.configs.lspconfig"
+      end,
+   },
 
--- fugitive
-Plug "tpope/vim-fugitive"
-Plug "tpope/vim-rhubarb"
-nmap("<leader>gr", ":Gread<cr>")
-nmap("<leader>gb", ":G blame<cr>")
+   -- load luasnips + cmp related in insert mode only
 
--- general plugins
--- emmet support for vim - easily create markdup wth CSS-like syntax
-Plug "mattn/emmet-vim"
+   ["rafamadriz/friendly-snippets"] = {
+      module = "cmp_nvim_lsp",
+      event = "InsertEnter",
+   },
 
--- match tags in html, similar to paren support
-Plug("gregsexton/MatchTag", {["for"] = "html"})
+   ["hrsh7th/nvim-cmp"] = {
+      after = "friendly-snippets",
+      config = function()
+         require "plugins.configs.cmp"
+      end,
+   },
 
--- html5 support
-Plug("othree/html5.vim", {["for"] = "html"})
+   ["L3MON4D3/LuaSnip"] = {
+      wants = "friendly-snippets",
+      after = "nvim-cmp",
+      config = function()
+         require("plugins.configs.others").luasnip()
+      end,
+   },
 
--- mustache support
-Plug "mustache/vim-mustache-handlebars"
+   ["saadparwaiz1/cmp_luasnip"] = {
+      after = "LuaSnip",
+   },
 
--- pug / jade support
-Plug("digitaltoad/vim-pug", {["for"] = {"jade", "pug"}})
+   ["hrsh7th/cmp-nvim-lua"] = {
+      after = "cmp_luasnip",
+   },
 
--- nunjucks support
--- Plug "niftylettuce/vim-jinja"
+   ["hrsh7th/cmp-nvim-lsp"] = {
+      after = "cmp-nvim-lua",
+   },
 
--- edit quickfix list
-Plug "itchyny/vim-qfedit"
+   ["hrsh7th/cmp-buffer"] = {
+      after = "cmp-nvim-lsp",
+   },
 
--- liquid support
-Plug "tpope/vim-liquid"
+   ["hrsh7th/cmp-path"] = {
+      after = "cmp-buffer",
+   },
 
-Plug("othree/yajs.vim", {["for"] = {"javascript", "javascript.jsx", "html"}})
--- Plug 'pangloss/vim-javascript', { 'for': ['javascript', 'javascript.jsx', 'html'] }
-Plug("moll/vim-node", {["for"] = "javascript"})
-Plug "MaxMEllon/vim-jsx-pretty"
-g.vim_jsx_pretty_highlight_close_tag = 1
-Plug("leafgarland/typescript-vim", {["for"] = {"typescript", "typescript.tsx"}})
+   -- misc plugins
+   ["windwp/nvim-autopairs"] = {
+      after = "nvim-cmp",
+      config = function()
+         require("plugins.configs.others").autopairs()
+      end,
+   },
 
-Plug("wavded/vim-stylus", {["for"] = {"stylus", "markdown"}})
-Plug("groenewege/vim-less", {["for"] = "less"})
-Plug("hail2u/vim-css3-syntax", {["for"] = "css"})
-Plug("cakebaker/scss-syntax.vim", {["for"] = "scss"})
-Plug("stephenway/postcss.vim", {["for"] = "css"})
-Plug "udalov/kotlin-vim"
+   ["goolord/alpha-nvim"] = {
+      after = "base46",
+      disable = true,
+      config = function()
+         require "plugins.configs.alpha"
+      end,
+   },
 
--- Open markdown files in Marked.app - mapped to <leader>m
-Plug("itspriddle/vim-marked", {["for"] = "markdown", on = "MarkedOpen"})
-nmap("<leader>m", ":MarkedOpen!<cr>")
-nmap("<leader>mq", ":MarkedQuit<cr>")
-nmap("<leader>*", "*<c-o>:%s///gn<cr>")
+   ["numToStr/Comment.nvim"] = {
+      module = "Comment",
+      keys = { "gc", "gb" },
+      config = function()
+         require("plugins.configs.others").comment()
+      end,
+   },
 
-Plug("elzr/vim-json", {["for"] = "json"})
-g.vim_json_syntax_conceal = 0
+   -- file managing , picker etc
+   ["kyazdani42/nvim-tree.lua"] = {
+      ft = "alpha",
+      cmd = { "NvimTreeToggle", "NvimTreeFocus" },
+      config = function()
+         require "plugins.configs.nvimtree"
+      end,
+   },
 
-Plug "ekalinin/Dockerfile.vim"
-Plug "jparise/vim-graphql"
+   ["nvim-telescope/telescope.nvim"] = {
+      cmd = "Telescope",
+      config = function()
+         require "plugins.configs.telescope"
+      end,
+   },
 
-Plug "hrsh7th/cmp-vsnip"
-Plug "hrsh7th/vim-vsnip"
-Plug "hrsh7th/vim-vsnip-integ"
-local snippet_dir = os.getenv("DOTFILES") .. "/config/nvim/snippets"
-g.vsnip_snippet_dir = snippet_dir
-g.vsnip_filetypes = {
-  javascriptreact = {"javascript"},
-  typescriptreact = {"typescript"},
-  ["typescript.tsx"] = {"typescript"}
+   -- Only load whichkey after all the gui
+   ["folke/which-key.nvim"] = {
+      module = "which-key",
+      config = function()
+         require "plugins.configs.whichkey"
+      end,
+   },
 }
 
--- add color highlighting to hex values
-Plug "norcalli/nvim-colorizer.lua"
-
--- use devicons for filetypes
-Plug "kyazdani42/nvim-web-devicons"
-
--- fast lau file drawer
-Plug "kyazdani42/nvim-tree.lua"
-
--- Show git information in the gutter
-Plug "lewis6991/gitsigns.nvim"
-
--- Helpers to configure the built-in Neovim LSP client
-Plug "neovim/nvim-lspconfig"
-
--- Helpers to install LSPs and maintain them
-Plug "williamboman/nvim-lsp-installer"
-
--- neovim completion
-Plug "hrsh7th/cmp-nvim-lsp"
-Plug "hrsh7th/cmp-nvim-lua"
-Plug "hrsh7th/cmp-buffer"
-Plug "hrsh7th/cmp-path"
-Plug "hrsh7th/nvim-cmp"
-
--- treesitter enables an AST-like understanding of files
-Plug("nvim-treesitter/nvim-treesitter", {["do"] = ":TSUpdate"})
--- show treesitter nodes
-Plug "nvim-treesitter/playground"
--- enable more advanced treesitter-aware text objects
-Plug "nvim-treesitter/nvim-treesitter-textobjects"
--- add rainbow highlighting to parens and brackets
-Plug "p00f/nvim-ts-rainbow"
-
--- show nerd font icons for LSP types in completion menu
-Plug "onsails/lspkind-nvim"
-
--- base16 syntax themes that are neovim/treesitter-aware
-Plug "RRethy/nvim-base16"
-
--- status line plugin
-Plug "feline-nvim/feline.nvim"
-
--- automatically complete brackets/parens/quotes
-Plug "windwp/nvim-autopairs"
-
--- Run prettier and other formatters on save
-Plug "mhartington/formatter.nvim"
-
--- Style the tabline without taking over how tabs and buffers work in Neovim
-Plug "alvarosevilla95/luatab.nvim"
-
--- enable copilot support for Neovim
-Plug "github/copilot.vim"
--- if a copilot-aliased version of node exists from fnm, use that
-local copilot_node_command = env.FNM_DIR .. "/aliases/copilot/bin/node"
-if utils.file_exists(copilot_node_command) then
-  -- vim.g.copilot_node_command = copilot_node_path
-  -- for some reason, this works but the above line does not
-  cmd('let g:copilot_node_command = "' .. copilot_node_command .. '"')
-end
-
--- improve the default neovim interfaces, such as refactoring
-Plug "stevearc/dressing.nvim"
-
--- Navigate a code base with a really slick UI
-Plug "nvim-telescope/telescope.nvim"
-Plug "nvim-telescope/telescope-rg.nvim"
-
--- Startup screen for Neovim
-Plug "startup-nvim/startup.nvim"
-
--- fzf
-Plug "$HOMEBREW_PREFIX/opt/fzf"
-Plug "junegunn/fzf.vim"
--- Power telescope with FZF
-Plug("nvim-telescope/telescope-fzf-native.nvim", {["do"] = "make"})
-
-Plug "folke/trouble.nvim"
-
-plugEnd()
-
--- Once the plugins have been loaded, Lua-based plugins need to be required and started up
--- For plugins with their own configuration file, that file is loaded and is responsible for
--- starting them. Otherwise, the plugin itself is required and its `setup` method is called.
-require("nvim-autopairs").setup()
-require("colorizer").setup()
-require("plugins.telescope")
-require("plugins.gitsigns")
-require("plugins.trouble")
-require("plugins.fzf")
-require("plugins.lspconfig")
-require("plugins.completion")
-require("plugins.treesitter")
-require("plugins.nvimtree")
-require("plugins.formatter")
-require("plugins.tabline")
-require("plugins.feline")
-require("plugins.startup")
+require("core.packer").run(plugins)
