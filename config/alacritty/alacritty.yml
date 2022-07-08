@@ -34,18 +34,17 @@ scrolling:
 # Font settings
 font:
   normal:
-    family: SauceCodePro NF
-    # family: 3270Medium Nerd Font
-    style: Medium
+    family: Iosevka Nerd Font
+    style: Regular
   bold:
-    family: SauceCodePro NF
+    family: Iosevka Nerd Font
     style: Bold
 
   italic:
-    family: SauceCodePro NF
-    style: Bold Italic
+    family: Iosevka Nerd Font
+    style:  Italic
   # point size
-  size: 12.0
+  size: 14.0
   # extra space around each character.
   # offset.y can be thought of as modifying the line spacing
   # offset.x can be thought of as modifying the letter spacing
