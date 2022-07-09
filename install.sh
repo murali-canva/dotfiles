@@ -228,6 +228,20 @@ setup_macos() {
     fi
 }
 
+setup_nvim() {
+
+  if [ -e "$HOME/.config/nvim" ]; then
+    echo "existing nvim config detected, delete it first"
+  else
+    {
+      git clone https://github.com/NvChad/NvChad $HOME/.config/nvim --depth 1
+      ln -s $HOME/dotfiles/nvim/NvChad-custom $HOME/.config/nvim/lua/custom
+      nvim +'hi NormalFloat guibg=#1e222a' +PackerSync
+    }
+  fi
+
+}
+
 case "$1" in
     backup)
         backup
@@ -247,6 +261,9 @@ case "$1" in
     terminfo)
         setup_terminfo
         ;;
+    nvim)
+        setup_nvim
+        ;;
     macos)
         setup_macos
         ;;
@@ -256,6 +273,7 @@ case "$1" in
         setup_homebrew
         setup_shell
         setup_git
+        setup_nvim
         setup_macos
         ;;
     *)
