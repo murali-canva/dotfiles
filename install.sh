@@ -235,7 +235,7 @@ setup_nvim() {
   else
     {
       git clone https://github.com/NvChad/NvChad $HOME/.config/nvim --depth 1
-      ln -s $HOME/dotfiles/nvim/NvChad-custom $HOME/.config/nvim/lua/custom
+      ln -s $DOTFILES/nvim/NvChad-custom $HOME/.config/nvim/lua/custom
       nvim +'hi NormalFloat guibg=#1e222a' +PackerSync
     }
   fi
