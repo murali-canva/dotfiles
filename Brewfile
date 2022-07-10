@@ -8,14 +8,11 @@ if OS.mac?
 
     # Applications
     cask "kitty" # a better terminal emulator
-    cask "imageoptim" # a tool to optimize images
-	cask "1password/tap/1password-cli"
 
     # Fonts
     cask "font-fira-code"
     cask "font-jetbrains-mono"
     cask "font-cascadia-mono"
-    cask "font-3270-nerd-font"
     cask "font-iosevka-nerd-font"
 elsif OS.linux?
     brew "xclip" # access to clipboard (similar to pbcopy/pbpaste)
