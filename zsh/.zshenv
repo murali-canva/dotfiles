@@ -16,4 +16,4 @@ typeset -aU path
 
 export EDITOR='nvim'
 export GIT_EDITOR='nvim'
-if [ -e /Users/murali/.nix-profile/etc/profile.d/nix.sh ]; then . /Users/murali/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then . $HOME/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
