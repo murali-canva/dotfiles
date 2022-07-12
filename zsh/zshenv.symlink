@@ -11,13 +11,9 @@ export VIM_TMP="$HOME/.vim-tmp"
 
 [[ -f ~/.zshenv.local ]] && source ~/.zshenv.local
 
-fpath=(
-    $DOTFILES/zsh/functions
-    /usr/local/share/zsh/site-functions
-    $fpath
-)
 
 typeset -aU path
 
 export EDITOR='nvim'
 export GIT_EDITOR='nvim'
+if [ -e /Users/murali/.nix-profile/etc/profile.d/nix.sh ]; then . /Users/murali/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
